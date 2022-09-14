@@ -1,22 +1,35 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import "./SearchPage.scss";
 import TextInput from "../../atoms/TextInput/TextInput";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { UserContext } from "../../context/UserContext";
 
 const SearchPage = () => {
   const [searchValue, setSearchValue] = useState("");
   const [typeFilter, setTypeFilter] = useState("movie");
   const [yearFilter, setYearFilter] = useState("");
   const [movies, setMovies] = useState();
+  const { state } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!state.isLoggedIn) {
+      navigate("/login");
+    }
+  }, [navigate, state.isLoggedIn]);
 
   const handleSearch = useCallback(async () => {
-    const preparedText = searchValue.replace(/\s+/g, "+").toLowerCase();
-    const response = await axios.get(
-      `http://www.omdbapi.com/?i=tt3896198&apikey=706091b4${
-        typeFilter && `&type=${typeFilter}`
-      }${yearFilter && `&y=${yearFilter}`}&t=${preparedText}`
-    );
+    const title = searchValue.replace(/\s+/g, "+").toLowerCase();
+    const data = {
+      typeFilter,
+      yearFilter,
+      title,
+    };
 
+    const response = await axios.post(`http://localhost:5000/search`, {
+      data,
+    });
     response.data.Response && setMovies(response.data);
   }, [searchValue, typeFilter, yearFilter]);
 

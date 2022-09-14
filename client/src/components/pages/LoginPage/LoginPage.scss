@@ -46,6 +46,18 @@
             cursor: pointer;
           }
         }
+        .switchButton {
+          display: flex;
+          justify-content: flex-end;
+          width: 65%;
+          margin: 10px auto;
+          button {
+            background-color: transparent;
+            border: none;
+            color: $button-default;
+            cursor: pointer;
+          }
+        }
       }
     }
   }
