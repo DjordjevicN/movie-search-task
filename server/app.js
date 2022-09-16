@@ -14,8 +14,6 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// GET movie
-
 const getMovie = async (req, res, next) => {
   const typeFilter = req.body.data.typeFilter;
   const yearFilter = req.body.data.yearFilter;
@@ -35,32 +33,20 @@ const getMovie = async (req, res, next) => {
     console.log(error);
   }
 };
-// cash middleware
 
 const cache = async (req, res, next) => {
   const movieTitle = req.body.data.title;
-  console.log(movieTitle);
   const movieExists = await client.exists(movieTitle);
   if (movieExists) {
-    console.log("CASHED MOVIE EXISTS");
     const redisResponse = await client.hGetAll(movieTitle);
     const cachedMovie = JSON.parse(redisResponse[movieTitle]);
     res.send(cachedMovie);
   } else {
-    console.log("NEXT");
     next();
   }
 };
 
 app.post("/search", cache, getMovie);
-
-app.get("/", async (req, res) => {
-  client.set("name", "Nikola");
-  client.set("age", "35");
-  const redisResponse = await client.get("age");
-  res.send(redisResponse);
-});
-
 app.post("/create_user", async (req, res) => {
   const { userName, password } = req.body;
   const userExists = await client.exists(userName);
